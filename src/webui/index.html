@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>形势与政策 · 答题操作台</title>
+<style>
+:root{
+  --bg:#0f1115; --panel:#171a21; --panel2:#1e222b; --line:#2a2f3a;
+  --fg:#e6e9ef; --dim:#8b93a3; --brand:#4c8dff; --ok:#2ecc71;
+  --warn:#f0b429; --err:#e5534b; --purple:#a06eff;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);
+  font:14px/1.55 -apple-system,"Segoe UI","Microsoft YaHei",sans-serif}
+h1,h2,h3{margin:0;font-weight:600}
+button{cursor:pointer;border:0;border-radius:8px;padding:9px 16px;font-size:13.5px;
+  background:var(--brand);color:#fff;font-weight:500;transition:.15s}
+button:hover{filter:brightness(1.12)}
+button:disabled{opacity:.42;cursor:not-allowed;filter:none}
+button.ghost{background:var(--panel2);color:var(--fg);border:1px solid var(--line)}
+button.ok{background:var(--ok)} button.warn{background:var(--warn);color:#2a1f00}
+button.err{background:var(--err)}
+input,textarea{width:100%;background:var(--panel2);border:1px solid var(--line);
+  color:var(--fg);border-radius:8px;padding:9px 11px;font-size:13.5px;font-family:inherit}
+input:focus,textarea:focus{outline:none;border-color:var(--brand)}
+.wrap{max-width:1820px;margin:0 auto;padding:18px}
+header{display:flex;align-items:center;gap:14px;margin-bottom:16px;flex-wrap:wrap}
+header h1{font-size:19px}
+.badge{font-size:11.5px;padding:3px 9px;border-radius:20px;background:var(--panel2);
+  color:var(--dim);border:1px solid var(--line)}
+.grid{display:grid;grid-template-columns:300px minmax(620px,1fr) 320px;gap:15px;align-items:start}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;
+  min-width:0}
+.card h2{font-size:13px;color:var(--dim);text-transform:uppercase;letter-spacing:.6px;
+  margin-bottom:13px}
+.card h2{font-size:13px;color:var(--dim);text-transform:uppercase;letter-spacing:.6px;
+  margin-bottom:13px}
+.row{display:flex;gap:9px;margin-bottom:9px;align-items:center}
+.row label{width:88px;flex:none;color:var(--dim);font-size:12.5px}
+.acts{display:flex;flex-direction:column;gap:9px}
+.acts button{width:100%}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:6px}
+.stat{background:var(--panel2);border-radius:9px;padding:11px;text-align:center}
+.stat b{display:block;font-size:21px;line-height:1.2}
+.stat span{font-size:11.5px;color:var(--dim)}
+.bar{height:8px;border-radius:6px;background:var(--panel2);overflow:hidden;display:flex;
+  margin:12px 0 4px}
+.bar i{display:block;height:100%}
+.log{height:calc(100vh - 210px);overflow-y:auto;background:#0b0d11;
+  border-radius:10px;padding:12px;font:12.3px/1.65 ui-monospace,Consolas,monospace}
+.log div{white-space:pre-wrap;word-break:break-word}
+.log .t{color:#555e70} .log .ok{color:var(--ok)} .log .warn{color:var(--warn)}
+.log .error{color:var(--err)}
+.q{border-bottom:1px solid var(--line);padding:11px 0}
+.q:last-child{border-bottom:0}
+.qh{display:flex;gap:9px;align-items:flex-start;margin-bottom:6px}
+.qn{color:var(--dim);font-size:12px;flex:none;width:28px;padding-top:2px}
+.qt{flex:1;min-width:0;font-size:13.3px;line-height:1.7;word-break:break-word}
+.tag{font-size:11px;padding:1.5px 7px;border-radius:5px;flex:none;font-weight:500}
+.t-qbank{background:rgba(46,204,113,.16);color:var(--ok)}
+.t-auto{background:rgba(76,141,255,.16);color:var(--brand)}
+.t-soft{background:rgba(240,180,41,.16);color:var(--warn)}
+.t-review{background:rgba(229,83,75,.16);color:var(--err)}
+.t-manual{background:rgba(160,110,255,.16);color:var(--purple)}
+.ans{font-size:12.8px;color:var(--dim);margin-left:37px}
+.ans b{color:var(--fg);font-weight:500}
+.opts{margin:7px 0 0 37px;font-size:12.3px;color:var(--dim)}
+.opts span{display:inline-block;margin-right:12px}
+.opts .on{color:var(--ok)}
+.filter{display:flex;gap:7px;margin-bottom:11px;flex-wrap:wrap}
+.filter button{padding:5px 12px;font-size:12px;background:var(--panel2);color:var(--dim);
+  border:1px solid var(--line)}
+.filter button.on{background:var(--brand);color:#fff;border-color:var(--brand)}
+#qlist{height:calc(100vh - 300px);overflow-y:auto;padding-right:6px}
+.hint{font-size:12px;color:var(--dim);line-height:1.6}
+.mono{font-family:ui-monospace,Consolas,monospace;font-size:11.5px}
+.split{display:flex;gap:8px}
+.split input{flex:1}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>形势与政策 · 答题操作台</h1>
+    <span class="badge" id="pillState">未连接</span>
+    <span class="badge" id="pillBank">题库 —</span>
+    <span class="badge" id="pillRun">空闲</span>
+    <span style="flex:1"></span>
+    <span class="hint">人工只需：过验证码 / 交卷</span>
+  </header>
+
+  <div class="grid">
+    <!-- 左：配置与动作 -->
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div class="card">
+        <h2>账号登录</h2>
+        <div class="acts">
+          <button class="ok" onclick="loginSso()">易班 Cookie 一键登录（推荐）</button>
+          <button class="ghost" onclick="loginQrStart()">易班 App 扫码</button>
+          <button class="ghost" onclick="loginBrowser()">账号密码登录</button>
+          <button class="ghost" onclick="loginCheck()">检查登录状态</button>
+        </div>
+
+        <div id="ssoBox" style="display:none;margin-top:11px">
+          <textarea id="inSso" rows="4" placeholder="粘贴 www.yiban.cn 的整段 cookie（含 yiban_user_token=...）"
+            style="font-family:ui-monospace,Consolas,monospace;font-size:11.5px"></textarea>
+          <button class="ok" style="width:100%;margin-top:8px" onclick="loginSsoDo()">交换凭证并登录</button>
+        </div>
+
+        <div id="qrBox" style="display:none;margin-top:13px;text-align:center;
+             background:var(--panel2);border-radius:10px;padding:13px">
+          <img id="qrImg" style="width:190px;height:190px;background:#fff;border-radius:8px"
+               alt="扫码登录二维码">
+          <p id="qrTip" class="hint" style="margin:9px 0 0">正在获取二维码…</p>
+          <button class="ghost" style="width:100%;margin-top:9px" onclick="loginQrCancel()">取消</button>
+        </div>
+
+        <details style="margin-top:12px">
+          <summary style="cursor:pointer;color:var(--dim);font-size:12.5px">或粘贴优课 cookie</summary>
+          <textarea id="inCookie" rows="3" placeholder="登录 www.yooc.me 后，F12 执行 document.cookie，整段粘进来"
+            style="margin-top:9px;font-family:ui-monospace,Consolas,monospace;font-size:11.5px"></textarea>
+          <button class="ghost" style="width:100%;margin-top:8px" onclick="loginPaste()">解析并接入</button>
+          <p class="hint" style="margin:8px 0 0">
+            需含 <span class="mono">user_token / yiban_id / user_id</span>
+          </p>
+        </details>
+        <p class="hint" style="margin:11px 0 0">
+          推荐第一条：在 <b>www.yiban.cn</b> 登录后复制 cookie，脚本走官方 SSO
+          （<span class="mono">/yiban_account/sso?access_token=</span>）自动换取优课凭证，
+          无需密码、无需验证码。
+        </p>
+      </div>
+
+      <div class="card">
+        <h2>账号 / 场次</h2>
+        <div class="row"><label>token</label><input id="inToken" placeholder="留空=保持不变"></div>
+        <div class="row"><label>yiban_id</label><input id="inYiban"></div>
+        <div class="row"><label>user_id</label><input id="inUser"></div>
+        <div class="row"><label>group_id</label><input id="inGroup"></div>
+        <div class="row"><label>exam_id</label><input id="inExam"></div>
+        <div class="split">
+          <button class="ghost" onclick="saveSession()">保存配置</button>
+          <button class="ghost" onclick="preflight()">自检</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>浏览器（保活）</h2>
+        <div id="browserBox" style="background:var(--panel2);border-radius:9px;padding:11px;
+             font-size:12.3px;line-height:1.7">
+          <span id="bState" style="color:var(--dim)">未打开</span>
+        </div>
+        <div class="split" style="margin-top:9px">
+          <button class="ok" onclick="browserOpen()">打开浏览器</button>
+          <button class="ghost" onclick="browserFocus()">前置</button>
+          <button class="ghost" onclick="browserClose()">关闭</button>
+        </div>
+        <div class="split" style="margin-top:7px">
+          <button class="ghost" onclick="browserPeek()">查看页面（不操作）</button>
+        </div>
+        <p class="hint" style="margin:9px 0 0">
+          填写完成后浏览器<b>不会自动关闭</b>，留给你复核和交卷。
+        </p>
+      </div>
+
+      <div class="card">
+        <h2>流程</h2>
+        <div class="acts">
+          <button class="ok" onclick="openExamPage()">⓪ 打开考试页</button>
+          <button onclick="pullPaper()">① 拉取试卷</button>
+          <button onclick="solvePaper()">② 生成答案</button>
+          <button class="ok" onclick="applyFill()">③ 填写到网页</button>
+          <button class="warn" onclick="harvest()">④ 回捞（交卷后）</button>
+        </div>
+        <p class="hint" style="margin:11px 0 0">
+          ⓪ 用系统浏览器打开考试列表（可点「重做试卷 → 开始考试」）。<br>
+          ③ 会弹出 Playwright 浏览器，验证码需人工通过。填写与门禁自动完成，交卷由你点击。
+        </p>
+      </div>
+
+      <div class="card">
+        <h2>覆盖情况</h2>
+        <div class="bar">
+          <i id="bQbank" style="background:var(--ok);width:0"></i>
+          <i id="bAuto" style="background:var(--brand);width:0"></i>
+          <i id="bSoft" style="background:var(--warn);width:0"></i>
+          <i id="bReview" style="background:var(--err);width:0"></i>
+        </div>
+        <div class="stats">
+          <div class="stat"><b id="sQbank">0</b><span>题库命中</span></div>
+          <div class="stat"><b id="sAuto">0</b><span>教材·自动</span></div>
+          <div class="stat"><b id="sSoft">0</b><span>教材·待复核</span></div>
+          <div class="stat"><b id="sReview">0</b><span>需人工</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 中：题目列表 -->
+    <div class="card">
+      <h2>题目与答案</h2>
+      <div class="filter">
+        <button class="on" data-f="all" onclick="setFilter('all',this)">全部</button>
+        <button data-f="textbook_soft" onclick="setFilter('textbook_soft',this)">待复核</button>
+        <button data-f="review" onclick="setFilter('review',this)">需人工</button>
+        <button data-f="qbank" onclick="setFilter('qbank',this)">题库</button>
+      </div>
+      <div id="qlist"><p class="hint">尚未拉题。从左栏点「③ 拉取试卷」开始。</p></div>
+    </div>
+
+    <!-- 右：日志 -->
+    <div class="card">
+      <h2>运行日志</h2>
+      <div class="log" id="log"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+let PLAN = [], STAT = null, FILTER = 'all';
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* ---------- 日志 ---------- */
+function addLog(r){
+  const d = document.createElement('div');
+  d.innerHTML = `<span class="t">${r.t}</span> <span class="${r.level||'info'}">${esc(r.msg)}</span>`;
+  const box = $('log');
+  box.appendChild(d);
+  box.scrollTop = box.scrollHeight;
+}
+const es = new EventSource('/api/logs');
+es.onmessage = e => { try { addLog(JSON.parse(e.data)); } catch(_){} };
+
+/* ---------- 状态 ---------- */
+async function refreshBank(){
+  const r = await (await fetch('/api/bank')).json();
+  if(r.ok) $('pillBank').textContent = `题库 ${r.entries} 条 · 回捞 ${r.harvested} 次`;
+}
+async function refreshSession(){
+  const r = await (await fetch('/api/session')).json();
+  if(!r.ok) return;
+  const s = r.session||{};
+  ['token','yiban','user','group','exam'].forEach(()=>{});
+  $('inYiban').value = s.yiban_id||'';
+  $('inUser').value = s.user_id||'';
+  $('inGroup').value = s.group_id||'';
+  $('inExam').value = s.exam_id||'';
+  $('inToken').value = '';
+  $('inToken').placeholder = s.token ? `当前 ${s.token}（留空不变）` : '未设置';
+}
+async function saveSession(){
+  const body = {
+    token:$('inToken').value, yiban_id:$('inYiban').value, user_id:$('inUser').value,
+    group_id:$('inGroup').value, exam_id:$('inExam').value
+  };
+  const r = await (await fetch('/api/session',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify(body)})).json();
+  if(r.ok){ $('inToken').value=''; refreshSession(); }
+}
+async function preflight(){
+  $('pillRun').textContent = '自检中…';
+  const r = await (await fetch('/api/preflight')).json();
+  if(r.ok){
+    $('pillState').textContent = `status=${r.state.status} · 分=${r.state.score}`;
+    refreshBank();
+  } else {
+    $('pillState').textContent = '自检失败';
+  }
+  $('pillRun').textContent = '空闲';
+}
+
+/* ---------- 登录 ---------- */
+let QR_TIMER = null, QR_TTL = 55, QR_BORN = 0;
+
+/* 易班 Cookie → SSO 换优课凭证 */
+function loginSso(){
+  const box = $('ssoBox');
+  box.style.display = box.style.display === 'none' ? 'block' : 'none';
+  if(box.style.display === 'block') $('inSso').focus();
+}
+async function loginSsoDo(){
+  const ck = ($('inSso').value||'').trim();
+  if(!ck) return alert('请先粘贴 www.yiban.cn 的 cookie');
+  if(!/yiban_user_token=/.test(ck)) {
+    return alert('cookie 里没找到 yiban_user_token。\n\n请确认是在 www.yiban.cn 页面复制的（不是 yooc.me）。');
+  }
+  setBusy('SSO 交换中…');
+  const r = await (await fetch('/api/login/sso',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({cookie:ck})})).json();
+  setBusy('空闲');
+  if(!r.ok){ return alert(`登录失败\n\n${r.error}`); }
+  $('inSso').value = '';
+  $('ssoBox').style.display = 'none';
+  let msg = `登录成功\nyiban_id: ${r.yiban_id}\nuser_id: ${r.user_id}`;
+  if(r.exams && r.exams.length){
+    msg += '\n\n可见考试:';
+    r.exams.forEach(e=>{ msg += `\n  ${e.examId} status=${e.status} score=${e.score} ${e.name||''}`; });
+  }
+  if(r.warn) msg += `\n\n注意: ${r.warn}`;
+  alert(msg);
+  refreshSession(); refreshBank(); preflight();
+}
+
+async function loginQrStart(){
+  setBusy('获取二维码…');
+  $('qrBox').style.display = 'block';
+  $('qrImg').src = '';
+  $('qrTip').textContent = '正在获取二维码…';
+  const r = await (await fetch('/api/login/qr/start',{method:'POST'})).json();
+  setBusy('空闲');
+  if(!r.ok){ $('qrTip').textContent = '获取失败: ' + r.error; return; }
+  QR_TTL = r.ttl || 55;
+  QR_BORN = Date.now();
+  $('qrImg').src = r.qr;
+  $('qrTip').textContent = '请用手机易班 App 扫码';
+  startQrPoll();
+}
+function startQrPoll(){
+  if(QR_TIMER) clearInterval(QR_TIMER);
+  QR_TIMER = setInterval(async ()=>{
+    try{
+      const r = await (await fetch('/api/login/qr/state')).json();
+      if(!r.ok){ $('qrTip').textContent = '状态检查失败: ' + (r.error||''); return; }
+      if(r.renewed){ $('qrImg').src = r.qr; QR_BORN = Date.now(); }
+      const st = r.status;
+      const left = Math.max(0, Math.ceil(QR_TTL - (Date.now()-QR_BORN)/1000));
+      if(st === 'waiting')      $('qrTip').textContent = `请用手机易班 App 扫码 · ${left}s 后自动刷新`;
+      else if(st === 'scanned') $('qrTip').textContent = '已扫码，请在手机上点确认';
+      else if(st === 'expired') $('qrTip').textContent = '刷新中…';
+      else if(st === 'confirmed'){
+        clearInterval(QR_TIMER); QR_TIMER = null;
+        if(r.yiban_id){
+          $('qrTip').textContent = `登录成功 · yiban_id ${r.yiban_id}`;
+          let msg = `扫码登录成功！\nyiban_id: ${r.yiban_id}\nuser_id: ${r.user_id}`;
+          if(r.exams && r.exams.length){
+            msg += '\n\n可见考试:';
+            r.exams.forEach(e=>{
+              const s2 = {3:'进行中',4:'已完成',5:'待开始'}[e.status] ?? e.status;
+              msg += `\n  ${e.examId}  ${s2}  得分=${e.score}`;
+            });
+            msg += '\n\n是否立即打开考试页？';
+            if(confirm(msg)) openExamPage();
+          } else {
+            alert(msg);
+          }
+          setTimeout(()=>{ $('qrBox').style.display='none'; refreshSession(); refreshBank(); preflight(); }, 800);
+        } else {
+          $('qrTip').textContent = (r.error || '扫码成功但换不到优课凭证');
+        }
+        loginQrCancel(true);
+      }
+    }catch(_){}
+  }, 2000);
+}
+async function loginQrCancel(keepBox){
+  if(QR_TIMER){ clearInterval(QR_TIMER); QR_TIMER = null; }
+  if(!keepBox){
+    try{ await fetch('/api/login/qr/cancel',{method:'POST'}); }catch(_){}
+    $('qrBox').style.display = 'none';
+  }
+}
+async function loginCheck(){
+  setBusy('检查登录…');
+  const r = await (await fetch('/api/login/check')).json();
+  setBusy('空闲');
+  if(r.ok){ alert(`登录有效\n\nyiban_id: ${r.yiban_id}\nrole: ${r.role}`); }
+  else{ alert(`登录无效\n\n${r.error}\n\n请用「浏览器登录」重新接入。`); }
+}
+async function loginBrowser(){
+  if(!confirm('将打开一个新的浏览器窗口。\n\n请在其中输入易班账号密码并通过人机验证，\n登录成功后脚本会自动读取登录态。\n\n继续？')) return;
+  setBusy('等待登录…');
+  const r = await (await fetch('/api/login/browser',{method:'POST'})).json();
+  setBusy('空闲');
+  if(r.ok){ alert(`登录成功\nyiban_id: ${r.yiban_id}`); refreshSession(); preflight(); }
+  else{ alert(`登录未完成\n\n${r.error}`); }
+}
+async function loginReuse(){
+  setBusy('读取会话…');
+  const r = await (await fetch('/api/login/reuse',{method:'POST'})).json();
+  setBusy('空闲');
+  if(r.ok){ alert(`复用成功\nyiban_id: ${r.yiban_id}`); refreshSession(); }
+  else{ alert(`复用失败\n\n${r.error}`); }
+}
+async function loginPaste(){
+  const cookie = ($('inCookie').value||'').trim();
+  if(!cookie) return alert('请先粘贴 cookie');
+  setBusy('校验 cookie…');
+  const r = await (await fetch('/api/login/paste',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({cookie})})).json();
+  setBusy('空闲');
+  if(r.ok){
+    $('inCookie').value = '';
+    alert(`接入成功\nyiban_id: ${r.yiban_id}\nuser_id: ${r.user_id}`);
+    refreshSession(); refreshBank(); preflight();
+  } else {
+    alert(`接入失败\n\n${r.error}`);
+  }
+}
+
+/* ---------- 浏览器保活 ---------- */
+async function refreshBrowser(){
+  try{
+    const r = await (await fetch('/api/browser')).json();
+    const el = $('bState');
+    if(r.ok && r.alive){
+      const up = r.uptime||0;
+      const mm = String(Math.floor(up/60)).padStart(2,'0')+':'+String(up%60).padStart(2,'0');
+      el.innerHTML = `<span style="color:var(--ok)">● 运行中</span> · ${mm}<br>
+        <span style="color:var(--dim);word-break:break-all">${esc((r.url||'').slice(0,72))}</span>`;
+    } else {
+      el.innerHTML = '<span style="color:var(--dim)">○ 未打开</span>';
+    }
+  }catch(_){}
+}
+async function browserPeek(){
+  const r = await (await fetch('/api/browser/peek')).json();
+  if(!r.ok) return alert(r.error);
+  alert(`页面: ${r.title}\n地址: ${r.url}\n\n文本长度: ${r.textLen}\n登录页: ${r.hasLogin}\n考试页: ${r.hasExam}\n\n——— 内容开头 ———\n${(r.head||'').slice(0,300)}`);
+}
+async function browserOpen(){
+  setBusy('打开浏览器…');
+  const r = await (await fetch('/api/browser/open',{method:'POST'})).json();
+  setBusy('空闲');
+  refreshBrowser();
+  if(!r.ok) return alert(r.error);
+}
+async function browserFocus(){
+  const r = await (await fetch('/api/browser/focus',{method:'POST'})).json();
+  if(!r.ok) return alert(r.error);
+  refreshBrowser();
+}
+async function browserClose(){
+  if(!confirm('确认关闭浏览器？\n\n交卷完成后再关，否则会丢失答题会话。')) return;
+  const r = await (await fetch('/api/browser/close',{method:'POST'})).json();
+  if(!r.ok) return alert(r.error);
+  refreshBrowser();
+}
+
+/* ---------- 流程 ---------- */
+async function openExamPage(){
+  setBusy('打开考试页…');
+  const r = await (await fetch('/api/start-exam',{method:'POST'})).json();
+  setBusy('空闲');
+  if(!r.ok) return alert(r.error);
+  let msg = `已用系统浏览器打开：\n${r.url}`;
+  if(r.exams && r.exams.length){
+    msg += '\n\n考试状态:';
+    r.exams.forEach(e=>{
+      const st = {3:'进行中',4:'已完成',5:'待开始'}[e.status] ?? e.status;
+      msg += `\n  ${e.examId}  ${st}  得分=${e.score}  剩余重做=${e.left}`;
+    });
+    msg += '\n\n如需重做：在打开的页面点「重做试卷 → 开始考试」，\n然后回到本页面点「① 拉取试卷」。';
+  }
+  alert(msg);
+}
+async function pullPaper(){
+  setBusy('拉题中…');
+  $('pillRun').textContent = '拉题中…';
+  const r = await (await fetch('/api/paper',{method:'POST'})).json();
+  setBusy('空闲');
+  refreshBrowser();
+  if(!r.ok) return alert(r.error);
+  alert(`已拉取 ${r.n} 题\n\n浏览器保持打开，可继续「② 生成答案」。`);
+}
+async function solvePaper(){
+  setBusy('生成答案…');
+  const r = await (await fetch('/api/solve',{method:'POST'})).json();
+  setBusy('空闲');
+  if(!r.ok) return alert(r.error);
+  PLAN = r.plan||[];
+  renderStat(r.stat);
+  renderList();
+}
+async function applyFill(){
+  setBusy('填写中…');
+  const r = await (await fetch('/api/apply',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({include_soft:true})})).json();
+  setBusy('空闲');
+  refreshBrowser();
+  if(!r.ok) return alert(r.error);
+  const g = r.gate||{};
+  const emptyList = (r.empty_idx||[]);
+  let msg = `填写完成\n\n空值 ${g.empty} 处`;
+  if(emptyList.length) msg += `：${emptyList.join(', ')}`;
+  msg += '\n\n浏览器保持打开，请在窗口里复核后点「交卷」。';
+  alert(msg);
+}
+async function harvest(){
+  setBusy('回捞中…');
+  const r = await (await fetch('/api/harvest',{method:'POST'})).json();
+  setBusy('空闲');
+  if(!r.ok) return alert(r.error);
+  refreshBank();
+  alert(`回捞完成 · 得分 ${r.score}`);
+}
+function setBusy(t){ $('pillRun').textContent = t; }
+
+/* ---------- 渲染 ---------- */
+function renderStat(st){
+  STAT = st; if(!st) return;
+  $('sQbank').textContent = st.qbank;
+  $('sAuto').textContent = st.textbook_auto;
+  $('sSoft').textContent = st.textbook_soft;
+  $('sReview').textContent = st.review;
+  const n = st.total||1;
+  $('bQbank').style.width = (st.qbank/n*100)+'%';
+  $('bAuto').style.width = (st.textbook_auto/n*100)+'%';
+  $('bSoft').style.width = (st.textbook_soft/n*100)+'%';
+  $('bReview').style.width = (st.review/n*100)+'%';
+}
+const TAG = {qbank:['t-qbank','题库'],textbook_auto:['t-auto','教材·高置信'],
+  textbook_soft:['t-soft','待复核'],review:['t-review','需人工'],manual:['t-manual','人工']};
+function setFilter(f,btn){
+  FILTER = f;
+  document.querySelectorAll('.filter button').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  renderList();
+}
+function renderList(){
+  const box = $('qlist');
+  if(!PLAN.length){ box.innerHTML = '<p class="hint">尚无答案计划。</p>'; return; }
+  const rows = PLAN.filter(r => FILTER==='all' || r.tier===FILTER);
+  if(!rows.length){ box.innerHTML = '<p class="hint">该分类下没有题目。</p>'; return; }
+  box.innerHTML = rows.map(r=>{
+    const [cls,label] = TAG[r.tier]||['t-review','?'];
+    const ansTxt = r.answer ? esc(r.answer) : '<span style="color:var(--err)">（未填）</span>';
+    let opts = '';
+    if(r.options && r.options.length){
+      const picked = new Set();
+      if(r.tier!=='review' && r.answer && r.type!=='completion'){
+        [...r.answer.toUpperCase()].forEach(ch=>{
+          const i = ch.charCodeAt(0)-65;
+          if(i>=0 && i<r.options.length) picked.add(i);
+        });
+      }
+      opts = '<div class="opts">'+r.options.map((o,i)=>
+        `<span class="${picked.has(i)?'on':''}">${String.fromCharCode(65+i)}. ${esc(o)}</span>`).join('')+'</div>';
+    }
+    const note = r.tier==='review'
+      ? `<div class="split" style="margin:7px 0 0 37px">
+           <input placeholder="人工填写答案…" value="${esc(r.candidate||'')}" data-sid="${esc(r.sid)}">
+           <button class="ghost" onclick="saveOne('${esc(r.sid)}',this)">存</button>
+         </div>`
+      : '';
+    return `<div class="q">
+      <div class="qh">
+        <span class="qn">${r.idx}</span>
+        <span class="qt">${esc((r.title||'').replace(/<[^>]+>/g,'').replace(/^\s*\+\s*[\d.]+/,''))}</span>
+        <span class="tag ${cls}">${label}</span>
+      </div>
+      <div class="ans">答案：<b>${ansTxt}</b>
+        <span style="color:var(--dim)"> · ${esc(r.source||'')} ${r.conf?('· 置信 '+r.conf):''}</span>
+        ${r.why?`<div style="color:var(--dim);font-size:12px;margin-top:3px">${esc(r.why)}</div>`:''}
+      </div>
+      ${opts}${note}
+    </div>`;
+  }).join('');
+}
+async function saveOne(sid, btn){
+  const inp = btn.previousElementSibling;
+  const v = (inp.value||'').trim();
+  if(!v) return;
+  const r = await (await fetch('/api/review',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({items:{[sid]:v}})})).json();
+  if(!r.ok) return alert(r.error);
+  const p = await (await fetch('/api/plan')).json();
+  PLAN = p.plan||[]; renderStat(p.stat); renderList();
+}
+
+/* ---------- 启动 ---------- */
+async function bootstrap(){
+  refreshSession(); refreshBank(); refreshBrowser();
+  setInterval(refreshBrowser, 5000);   // 浏览器状态轮询
+  // 恢复已有答案计划（刷新页面不丢进度）
+  try{
+    const p = await (await fetch('/api/plan')).json();
+    if(p.ok && p.plan){
+      PLAN = p.plan; renderStat(p.stat); renderList();
+      $('pillRun').textContent = '已载入计划';
+      setTimeout(()=>{ if($('pillRun').textContent==='已载入计划') $('pillRun').textContent='空闲'; }, 2500);
+    }
+  }catch(_){}
+}
+bootstrap();
+</script>
+</body>
+</html>

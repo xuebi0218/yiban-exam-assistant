@@ -1,0 +1,43 @@
+# 个人会话凭据（绝对不要提交）
+session.json
+data/session.json
+data/cookies.txt
+
+# 浏览器 profile（含登录态）
+.pwprofile*/
+src/.pwprofile*/
+.pwprofile_scan/
+.pwprofile_live/
+
+# 运行时产物
+data/live_paper*.json
+data/plan*.json
+data/readback*.json
+data/answer_truth*.json
+data/eval_engine_v2.json
+data/paper_ui.json
+data/plan_ui.json
+data/readback_ui.json
+
+# 教材与语料（受版权保护，不入库）
+data/corpus*.txt
+data/textbook.txt
+*.pdf
+
+# 评测集（由个人作答数据生成）
+data/evalset/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# 编辑器 / 系统
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.log
